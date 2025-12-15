@@ -27,6 +27,7 @@
     },
     "ios": {
       "bundleIdentifier": "me.lorenzo0111.whichapp",
+      "icon": "./assets/WhichApp.icon",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Allow $(PRODUCT_NAME) to access your local network."
       }

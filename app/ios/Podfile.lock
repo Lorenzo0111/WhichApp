@@ -31,6 +31,10 @@ PODS:
     - Yoga
   - ExpoAsset (12.0.11):
     - ExpoModulesCore
+  - ExpoCamera (17.0.10):
+    - ExpoModulesCore
+    - ZXingObjC/OneD
+    - ZXingObjC/PDF417
   - ExpoCrypto (15.0.8):
     - ExpoModulesCore
   - ExpoFileSystem (19.0.21):
@@ -81,6 +85,8 @@ PODS:
   - ExpoSecureStore (15.0.8):
     - ExpoModulesCore
   - ExpoSQLite (16.0.10):
+    - ExpoModulesCore
+  - ExpoSystemUI (6.0.9):
     - ExpoModulesCore
   - FBLazyVector (0.81.5)
   - hermes-engine (0.81.5):
@@ -2096,12 +2102,18 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - Yoga (0.0.0)
+  - ZXingObjC/Core (3.6.9)
+  - ZXingObjC/OneD (3.6.9):
+    - ZXingObjC/Core
+  - ZXingObjC/PDF417 (3.6.9):
+    - ZXingObjC/Core
 
 DEPENDENCIES:
   - "EXConstants (from `../../node_modules/.bun/expo-constants@18.0.12+9bdf977739802ace/node_modules/expo-constants/ios`)"
   - "EXImageLoader (from `../../node_modules/.bun/expo-image-loader@6.0.0+9bdf977739802ace/node_modules/expo-image-loader/ios`)"
   - "Expo (from `../../node_modules/.bun/expo@54.0.29+9bdf977739802ace/node_modules/expo`)"
   - "ExpoAsset (from `../../node_modules/.bun/expo-asset@12.0.11+164e39e7fe27a9dd/node_modules/expo-asset/ios`)"
+  - "ExpoCamera (from `../../node_modules/.bun/expo-camera@17.0.10+9bdf977739802ace/node_modules/expo-camera/ios`)"
   - "ExpoCrypto (from `../../node_modules/.bun/expo-crypto@15.0.8+9bdf977739802ace/node_modules/expo-crypto/ios`)"
   - "ExpoFileSystem (from `../../node_modules/.bun/expo-file-system@19.0.21+164e39e7fe27a9dd/node_modules/expo-file-system/ios`)"
   - "ExpoFont (from `../../node_modules/.bun/expo-font@14.0.10+164e39e7fe27a9dd/node_modules/expo-font/ios`)"
@@ -2114,6 +2126,7 @@ DEPENDENCIES:
   - "ExpoNetwork (from `../../node_modules/.bun/expo-network@8.0.8+9bdf977739802ace/node_modules/expo-network/ios`)"
   - "ExpoSecureStore (from `../../node_modules/.bun/expo-secure-store@15.0.8+9bdf977739802ace/node_modules/expo-secure-store/ios`)"
   - "ExpoSQLite (from `../../node_modules/.bun/expo-sqlite@16.0.10+9bdf977739802ace/node_modules/expo-sqlite/ios`)"
+  - "ExpoSystemUI (from `../../node_modules/.bun/expo-system-ui@6.0.9+9bdf977739802ace/node_modules/expo-system-ui/ios`)"
   - "FBLazyVector (from `../../node_modules/.bun/react-native@0.81.5+87dd5a4c738f4c73/node_modules/react-native/Libraries/FBLazyVector`)"
   - "hermes-engine (from `../../node_modules/.bun/react-native@0.81.5+87dd5a4c738f4c73/node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)"
   - "lottie-react-native (from `../../node_modules/.bun/lottie-react-native@7.3.4+87dd5a4c738f4c73/node_modules/lottie-react-native`)"
@@ -2200,6 +2213,7 @@ SPEC REPOS:
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
+    - ZXingObjC
 
 EXTERNAL SOURCES:
   EXConstants:
@@ -2210,6 +2224,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.bun/expo@54.0.29+9bdf977739802ace/node_modules/expo"
   ExpoAsset:
     :path: "../../node_modules/.bun/expo-asset@12.0.11+164e39e7fe27a9dd/node_modules/expo-asset/ios"
+  ExpoCamera:
+    :path: "../../node_modules/.bun/expo-camera@17.0.10+9bdf977739802ace/node_modules/expo-camera/ios"
   ExpoCrypto:
     :path: "../../node_modules/.bun/expo-crypto@15.0.8+9bdf977739802ace/node_modules/expo-crypto/ios"
   ExpoFileSystem:
@@ -2234,6 +2250,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.bun/expo-secure-store@15.0.8+9bdf977739802ace/node_modules/expo-secure-store/ios"
   ExpoSQLite:
     :path: "../../node_modules/.bun/expo-sqlite@16.0.10+9bdf977739802ace/node_modules/expo-sqlite/ios"
+  ExpoSystemUI:
+    :path: "../../node_modules/.bun/expo-system-ui@6.0.9+9bdf977739802ace/node_modules/expo-system-ui/ios"
   FBLazyVector:
     :path: "../../node_modules/.bun/react-native@0.81.5+87dd5a4c738f4c73/node_modules/react-native/Libraries/FBLazyVector"
   hermes-engine:
@@ -2389,6 +2407,7 @@ SPEC CHECKSUMS:
   EXImageLoader: 189e3476581efe3ad4d1d3fb4735b7179eb26f05
   Expo: 8fa2204bf8483fe546b4ec87c90d3ca189afc8db
   ExpoAsset: 23a958e97d3d340919fe6774db35d563241e6c03
+  ExpoCamera: 6a326deb45ba840749652e4c15198317aa78497e
   ExpoCrypto: b6105ebaa15d6b38a811e71e43b52cd934945322
   ExpoFileSystem: 858a44267a3e6e9057e0888ad7c7cfbf55d52063
   ExpoFont: 35ac6191ed86bbf56b3ebd2d9154eda9fad5b509
@@ -2401,6 +2420,7 @@ SPEC CHECKSUMS:
   ExpoNetwork: ee1fb67b0de59ab7f36794caf8242955dd8ae046
   ExpoSecureStore: d32f751874a2ceb5aaeebeb3578e165c1ba2b24a
   ExpoSQLite: 7eedbe476870a5f18d6b89c817c4ac6f299830ad
+  ExpoSystemUI: 2ad325f361a2fcd96a464e8574e19935c461c9cc
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
   hermes-engine: 9f4dfe93326146a1c99eb535b1cb0b857a3cd172
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
@@ -2483,6 +2503,7 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   Yoga: 5934998fbeaef7845dbf698f698518695ab4cd1a
+  ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
 PODFILE CHECKSUM: 4adbccc57c2291859a778d78d6da0c4ae48f02e9
 
