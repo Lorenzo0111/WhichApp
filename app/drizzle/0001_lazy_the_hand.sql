@@ -1,0 +1,1 @@
+ALTER TABLE `message` ADD `read` integer DEFAULT false NOT NULL;

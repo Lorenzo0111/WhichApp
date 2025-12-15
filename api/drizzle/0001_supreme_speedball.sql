@@ -1,0 +1,2 @@
+ALTER TABLE `message_queue` ADD `receiver_session` text NOT NULL REFERENCES session(id);--> statement-breakpoint
+CREATE INDEX `message_queue_receiver_session_idx` ON `message_queue` (`receiver_session`);
