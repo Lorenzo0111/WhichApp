@@ -29,6 +29,9 @@ type WebSocketMessage =
       type: "connection";
       user: string;
       online: boolean;
+    }
+  | {
+      type: "refetch";
     };
 
 interface WebSocketReceiver {
@@ -53,6 +56,7 @@ interface WebSocketContextType {
     callback: (connection: { user: string; online: boolean }) => void
   ) => () => void;
   subscribeToAll: (callback: (message: Message) => void) => () => void;
+  subscribeToRefetch: (callback: () => void) => () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
@@ -68,6 +72,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     Map<string, Set<(connection: { user: string; online: boolean }) => void>>
   >(new Map());
   const globalCallbacksRef = useRef<Set<(message: Message) => void>>(new Set());
+  const refetchCallbacksRef = useRef<Set<() => void>>(new Set());
 
   useEffect(() => {
     if (!session?.user.id) return;
@@ -151,6 +156,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
           } else if (data.type === "connection") {
             const callbacks = onlineCallbacksRef.current.get(data.user);
             if (callbacks) callbacks.forEach((callback) => callback(data));
+          } else if (data.type === "refetch") {
+            refetchCallbacksRef.current.forEach((callback) => callback());
           }
         });
       } catch (error) {
@@ -256,6 +263,14 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const subscribeToRefetch = useCallback((callback: () => void) => {
+    refetchCallbacksRef.current.add(callback);
+
+    return () => {
+      refetchCallbacksRef.current.delete(callback);
+    };
+  }, []);
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -264,6 +279,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         subscribeToChat,
         subscribeToAll,
         subscribeToUser,
+        subscribeToRefetch,
       }}
     >
       {children}

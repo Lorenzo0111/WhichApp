@@ -124,6 +124,15 @@ export const chats = new Elysia({ prefix: "/chats" })
         }))
       );
 
+      for (const userId of members) {
+        context.server?.publish(
+          userId,
+          JSON.stringify({
+            type: "refetch",
+          })
+        );
+      }
+
       return newChat
         ? {
             ...newChat,
@@ -292,6 +301,15 @@ export const chats = new Elysia({ prefix: "/chats" })
         }))
       );
 
+      for (const userId of newMembers) {
+        context.server?.publish(
+          userId,
+          JSON.stringify({
+            type: "refetch",
+          })
+        );
+      }
+
       return { added: newMembers.length };
     },
     {
@@ -332,6 +350,15 @@ export const chats = new Elysia({ prefix: "/chats" })
           .delete(schema.messageQueue)
           .where(eq(schema.messageQueue.chatId, id));
         await db.delete(chat).where(eq(chat.id, id));
+      }
+
+      for (const user of removed) {
+        context.server?.publish(
+          user.userId,
+          JSON.stringify({
+            type: "refetch",
+          })
+        );
       }
 
       return { left: removed.length > 0 };

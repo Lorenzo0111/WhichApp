@@ -18,7 +18,7 @@ import { useCSSVariable } from "uniwind";
 
 export default function ChatsScreen() {
   const textColor = useCSSVariable("--color-text");
-  const { subscribeToAll } = useWebSocket();
+  const { subscribeToAll, subscribeToRefetch } = useWebSocket();
 
   const [refreshing, setRefreshing] = useState(true);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -50,6 +50,12 @@ export default function ChatsScreen() {
 
     return unsubscribe;
   }, [chats, subscribeToAll]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToRefetch(refresh);
+
+    return unsubscribe;
+  }, [subscribeToRefetch]);
 
   return (
     <View className="flex-1 bg-background">

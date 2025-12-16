@@ -39,6 +39,9 @@ const app = new Elysia()
         user: t.String(),
         online: t.Boolean(),
       }),
+      t.Object({
+        type: t.Literal("refetch"),
+      }),
     ]),
     async open(ws) {
       ws.subscribe(ws.data.user.id);
@@ -60,20 +63,25 @@ const app = new Elysia()
       }
     },
     async close(ws) {
-      const connections = connectedClients.get(ws.data.user.id) ?? [];
-      connections.filter((connection) => connection !== ws);
+      let connections = connectedClients.get(ws.data.user.id) ?? [];
+      connections = connections.filter(
+        (connection) =>
+          connection !== ws && connection.readyState === WebSocket.OPEN
+      );
       connectedClients.set(ws.data.user.id, connections);
 
-      const relatedUsers = await getRelatedUsers(ws.data.user.id);
-      for (const user of relatedUsers) {
-        app.server?.publish(
-          user.id,
-          JSON.stringify({
-            type: "connection",
-            user: ws.data.user.id,
-            online: false,
-          })
-        );
+      if (connections.length === 0) {
+        const relatedUsers = await getRelatedUsers(ws.data.user.id);
+        for (const user of relatedUsers) {
+          app.server?.publish(
+            user.id,
+            JSON.stringify({
+              type: "connection",
+              user: ws.data.user.id,
+              online: false,
+            })
+          );
+        }
       }
     },
     async message(ws, message) {
@@ -115,6 +123,9 @@ const app = new Elysia()
           .get(message.receiver)
           ?.filter((connection) => connection.readyState === WebSocket.OPEN) ??
         [];
+
+      console.log("connections", connections);
+      console.log("receiverSessions", receiverSessions);
 
       if (connections.length < receiverSessions.length) {
         const missingSessions = receiverSessions.filter(

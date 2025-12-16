@@ -27,16 +27,6 @@ const mimeToExtension = (mime?: string | null) => {
   return "";
 };
 
-const buildBaseUrl = (request: Request) => {
-  const envUrl = process.env.API_BASE_URL;
-  if (envUrl) return envUrl.replace(/\/$/, "");
-
-  const host = request.headers.get("host");
-  if (host) return `http://${host}`;
-
-  return "http://100.92.0.1:3000";
-};
-
 export const uploads = new Elysia({ prefix: "/uploads" })
   .use(betterAuthMacro)
   .post(
@@ -70,7 +60,7 @@ export const uploads = new Elysia({ prefix: "/uploads" })
       const arrayBuffer = await file.arrayBuffer();
       await Bun.write(filePath, arrayBuffer);
 
-      const baseUrl = buildBaseUrl(request);
+      const baseUrl = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "";
       const url = `${baseUrl}/uploads/profile/${encodeURIComponent(
         user.id
       )}/${encodeURIComponent(filename)}`;
