@@ -28,7 +28,7 @@ export const UserItem = memo(function UserItem({
     });
 
     if (chat.data) {
-      router.replace(`/chats/${chat.data.id}`);
+      router.replace(`/chats/${chat.data}`);
       return;
     }
 

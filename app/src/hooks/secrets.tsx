@@ -10,14 +10,25 @@ import {
   useState,
 } from "react";
 
+/**
+ * @description Tipo per lo stato delle chiavi private
+ */
 interface PrivateKeyState {
   loading: boolean;
   value: boolean;
   refetch: () => Promise<void>;
 }
 
+/**
+ * @description Contesto per le chiavi private
+ */
 const PrivateKeyContext = createContext<PrivateKeyState | null>(null);
 
+/**
+ * @description Provider per le chiavi private
+ * @param children - I figli del provider
+ * @returns Il provider per le chiavi private
+ */
 export function PrivateKeyProvider({
   children,
 }: {

@@ -5,13 +5,20 @@ import { user } from "../db/schema";
 import { betterAuthMacro } from "../lib/auth/server";
 import { db } from "../lib/db";
 
+/**
+ * @description Mappa delle connessioni attive degli utenti: [userId: ElysiaWS[]]
+ */
 export const connectedClients = new Map<string, ElysiaWS[]>();
 
+/**
+ * @description Routes per la gestione degli utenti
+ */
 export const users = new Elysia({ prefix: "/users" })
+  // Monta la macro per la gestione dell'autenticazione
   .use(betterAuthMacro)
-  .get("/me", ({ user }) => user, {
-    auth: true,
-  })
+  // Route per ottenere le informazioni dell'utente corrente
+  .get("/me", ({ user }) => user, { auth: true })
+  // Route per cercare utenti
   .get(
     "/search",
     (context) => {
@@ -44,6 +51,7 @@ export const users = new Elysia({ prefix: "/users" })
   .get(
     "/:id/online",
     ({ params }) => {
+      // Ritorna true se l'utente ha almeno una connessione attiva
       return (
         (connectedClients
           .get(params.id)
@@ -51,7 +59,5 @@ export const users = new Elysia({ prefix: "/users" })
           ?.length ?? 0) > 0
       );
     },
-    {
-      auth: true,
-    }
+    { auth: true }
   );

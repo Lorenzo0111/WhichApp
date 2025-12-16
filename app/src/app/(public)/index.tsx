@@ -22,6 +22,7 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
+      // Tenta di accedere
       const { data, error } = await authClient.signIn.username({
         username: username,
         password: password,
@@ -30,13 +31,16 @@ export default function LoginScreen() {
       if (error) throw error;
 
       if (data) {
+        // Verifica se ci sono chiavi private salvate
         const hasPrivateKey =
           !!SecureStore.getItem(PRIVATE_KEY_D(data.user.id)) &&
           !!SecureStore.getItem(PRIVATE_KEY_N(data.user.id));
 
+        // Se non ci sono chiavi private salvate, reindirizza alla schermata di no-keys
         if (!hasPrivateKey) router.push("/no-keys");
       }
     } catch (error: any) {
+      // Se ci sono errori, mostra un avviso
       Alert.alert(
         "Errore",
         error.message ?? "Si è verificato un errore durante l'accesso"

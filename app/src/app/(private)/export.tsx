@@ -19,7 +19,7 @@ export default function ExportScreen() {
   const [exportData, setExportData] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!session) return;
+    if (!session?.user.id) return;
 
     (async () => {
       const d = await SecureStore.getItemAsync(PRIVATE_KEY_D(session.user.id), {
@@ -30,7 +30,7 @@ export default function ExportScreen() {
 
       setExportData(PRIVATE_KEY_PREFIX + btoa(d));
     })();
-  }, [session]);
+  }, [session?.user.id]);
 
   return (
     <View className="flex-1 bg-background relative">

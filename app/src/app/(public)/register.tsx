@@ -27,8 +27,10 @@ export default function RegisterScreen() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
+        // Genera le chiavi private
         const { publicKey, privateKey } = await generateKeys();
 
+        // Registra l'utente
         const { data, error } = await authClient.signUp.email({
           email: email,
           name: name,
@@ -42,6 +44,7 @@ export default function RegisterScreen() {
         if (error) throw error;
 
         if (data) {
+          // Salva le chiavi private nello storage
           SecureStore.setItem(
             PRIVATE_KEY_D(data.user.id),
             privateKey.d.toString()
@@ -52,6 +55,7 @@ export default function RegisterScreen() {
           );
         }
       } catch (error: any) {
+        // Se ci sono errori, mostra un avviso
         Alert.alert(
           "Errore",
           error.message ?? "Si è verificato un errore durante la registrazione"

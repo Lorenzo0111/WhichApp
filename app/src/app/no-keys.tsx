@@ -26,12 +26,16 @@ export default function NoKeysScreen() {
   async function handleRegenerateKeys() {
     setIsLoading(true);
 
+    // Rigenera le chiavi private
     requestIdleCallback(async () => {
+      // Attende 100ms per evitare blocchi del thread principale
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
+        // Tenta di rigenerare le chiavi private
         const { publicKey, privateKey } = await generateKeys();
 
+        // Aggiorna le chiavi private nel database
         const { data, error } = await authClient.updateUser({
           publicKeyE: publicKey.e,
           publicKeyN: publicKey.n,
@@ -40,6 +44,7 @@ export default function NoKeysScreen() {
         if (error) throw error;
 
         if (data) {
+          // Salva le chiavi private nello storage
           SecureStore.setItem(
             PRIVATE_KEY_D(session?.user.id),
             privateKey.d.toString()
@@ -48,14 +53,19 @@ export default function NoKeysScreen() {
             PRIVATE_KEY_N(session?.user.id),
             privateKey.n.toString()
           );
+
+          // Aggiorna la sessione e le chiavi private
           await refetchSession();
           await refetchKeys();
+
+          // Reindirizza l'utente alla home
           setTimeout(() => {
             router.replace("/(private)/(tabs)");
             router.replace("/(private)/(tabs)");
           }, 100);
         }
       } catch (error) {
+        // Se ci sono errori, mostra un avviso
         Alert.alert(
           "Errore",
           "Si è verificato un errore durante la rigenerazione delle chiavi"

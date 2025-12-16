@@ -5,11 +5,17 @@ import { chat, chatMember } from "../db/schema";
 import { betterAuthMacro } from "../lib/auth/server";
 import { db } from "../lib/db";
 
+/**
+ * @description Routes per la gestione delle chat
+ */
 export const chats = new Elysia({ prefix: "/chats" })
+  // Monta la macro per la gestione dell'autenticazione
   .use(betterAuthMacro)
+  // Route per ottenere le chat dell'utente corrente
   .get(
     "/",
     async (context) => {
+      // Ottiene le chat dell'utente corrente
       const chats = await db
         .select({
           id: chat.id,
@@ -22,9 +28,12 @@ export const chats = new Elysia({ prefix: "/chats" })
         .where(eq(chatMember.userId, context.user.id));
 
       return await Promise.all(
+        // Mappa le chat
         chats.map(async (c) => {
-          if (c.name && c.image) return { ...c, name: c.name };
+          // Se la chat ha sia un nome che un'immagine personalizzati, ritorna la chat normale
+          if (c.name && c.image) return c;
 
+          // Ottiene i membri della chat
           const members = await db
             .select({
               id: chatMember.userId,
@@ -37,11 +46,13 @@ export const chats = new Elysia({ prefix: "/chats" })
 
           return {
             ...c,
+            // Imposta il nome della chat alla lista dei membri
             name:
               members
                 .filter((m) => m.id !== context.user.id)
                 .map((m) => m.name)
                 .join(", ") || "Chat",
+            // Imposta l'immagine della chat alla prima immagine del membro che non è l'utente corrente
             image:
               c.image ?? members.find((m) => m.id !== context.user.id)?.image,
           };
@@ -50,11 +61,14 @@ export const chats = new Elysia({ prefix: "/chats" })
     },
     { auth: true }
   )
+  // Route per creare una nuova chat
   .post(
     "/",
     async (context) => {
+      // Imposta i membri della chat a quelli forniti più l'utente corrente
       const members = [...context.body.members, context.user.id];
 
+      // Cerca potenziali chat con stessi membri
       const potentialChats = await db
         .select({
           chatId: chatMember.chatId,
@@ -64,19 +78,9 @@ export const chats = new Elysia({ prefix: "/chats" })
         .groupBy(chatMember.chatId)
         .having(sql`count(*) = ${members.length}`);
 
-      const memberNames = await db
-        .select({
-          name: schema.user.name,
-        })
-        .from(schema.user)
-        .where(
-          inArray(
-            schema.user.id,
-            members.filter((m) => m !== context.user.id)
-          )
-        );
-
+      // Controlla se esiste una chat esatta con i membri forniti
       for (const { chatId } of potentialChats) {
+        // Ottiene i membri della chat
         const chatMembers = await db
           .select({
             userId: chatMember.userId,
@@ -88,27 +92,17 @@ export const chats = new Elysia({ prefix: "/chats" })
           const chatMemberIds = chatMembers.map((m) => m.userId).sort();
           const requestMemberIds = [...members].sort();
 
+          // Controlla se la chat ha esattamente i membri forniti
           const isExactMatch = chatMemberIds.every(
             (id, i) => id === requestMemberIds[i]
           );
 
-          if (isExactMatch) {
-            const existingChat = await db.query.chat.findFirst({
-              where: eq(chat.id, chatId),
-            });
-            return existingChat
-              ? {
-                  ...existingChat,
-                  name:
-                    existingChat.name ||
-                    memberNames.map((m) => m.name).join(", ") ||
-                    "Chat",
-                }
-              : null;
-          }
+          // In caso di esatta corrispondenza, ritorna l'ID della chat
+          if (isExactMatch) return chatId;
         }
       }
 
+      // Crea una nuova chat
       const [newChat] = await db
         .insert(schema.chat)
         .values({
@@ -117,6 +111,7 @@ export const chats = new Elysia({ prefix: "/chats" })
         })
         .returning();
 
+      // Aggiunge i membri alla chat
       await db.insert(schema.chatMember).values(
         members.map((userId) => ({
           chatId: newChat.id,
@@ -124,6 +119,7 @@ export const chats = new Elysia({ prefix: "/chats" })
         }))
       );
 
+      // Pubblica l'aggiornamento della chat per tutti i membri
       for (const userId of members) {
         context.server?.publish(
           userId,
@@ -133,36 +129,23 @@ export const chats = new Elysia({ prefix: "/chats" })
         );
       }
 
-      return newChat
-        ? {
-            ...newChat,
-            name:
-              newChat.name ||
-              memberNames.map((m) => m.name).join(", ") ||
-              "Chat",
-          }
-        : null;
+      // Ritorna l'ID della nuova chat
+      return newChat.id;
     },
     {
       body: t.Object({
         members: t.Array(t.String()),
       }),
-      response: t.Nullable(
-        t.Object({
-          id: t.String(),
-          name: t.String(),
-          image: t.Nullable(t.String()),
-          createdAt: t.Date(),
-        })
-      ),
       auth: true,
     }
   )
+  // Route per ottenere una chat
   .get(
     "/:id",
     async (context) => {
       const { id } = context.params;
 
+      // Ottiene la chat
       const result = await db.query.chat.findFirst({
         where: eq(chat.id, id),
         with: {
@@ -183,15 +166,18 @@ export const chats = new Elysia({ prefix: "/chats" })
         },
       });
 
+      // Controlla se la chat esiste e se l'utente corrente è membro della chat
       if (
         !result ||
         !result.members.find((member) => member.userId === context.user.id)
       )
         return context.status(404);
 
+      // Ritorna la chat
       return {
         ...result,
         members: result.members.map((member) => member.user),
+        // Imposta il nome della chat alla lista dei membri
         name:
           result.name ||
           result.members
@@ -199,6 +185,7 @@ export const chats = new Elysia({ prefix: "/chats" })
             .map((member) => member.user.name)
             .join(", ") ||
           "Chat",
+        // Imposta l'immagine della chat alla prima immagine del membro che non è l'utente corrente
         image:
           result.image ??
           result.members
@@ -210,11 +197,13 @@ export const chats = new Elysia({ prefix: "/chats" })
     },
     { auth: true }
   )
+  // Route per ottenere i messaggi in sospeso per una chat
   .get(
     "/:id/messages",
     async (context) => {
       const { id } = context.params;
 
+      // Ottiene i messaggi in sospeso per la chat
       const messages = await db
         .delete(schema.messageQueue)
         .where(
@@ -230,11 +219,13 @@ export const chats = new Elysia({ prefix: "/chats" })
     },
     { auth: true }
   )
+  // Route per aggiornare le informazioni di una chat
   .patch(
     "/:id",
     async (context) => {
       const { id } = context.params;
 
+      // Controlla se l'utente corrente è membro della chat
       const isMember = await db.query.chatMember.findFirst({
         where: and(
           eq(chatMember.chatId, id),
@@ -242,11 +233,13 @@ export const chats = new Elysia({ prefix: "/chats" })
         ),
       });
 
+      // In caso di non membro, ritorna un errore
       if (!isMember) {
         context.set.status = 403;
         return { error: "Not a member of this chat" };
       }
 
+      // Aggiorna le informazioni della chat
       const [updatedChat] = await db
         .update(chat)
         .set({
@@ -266,11 +259,13 @@ export const chats = new Elysia({ prefix: "/chats" })
       auth: true,
     }
   )
+  // Route per aggiungere un membro a una chat
   .post(
     "/:id/members",
     async (context) => {
       const { id } = context.params;
 
+      // Controlla se l'utente corrente è membro della chat
       const isMember = await db.query.chatMember.findFirst({
         where: and(
           eq(chatMember.chatId, id),
@@ -278,22 +273,25 @@ export const chats = new Elysia({ prefix: "/chats" })
         ),
       });
 
+      // In caso di non membro, ritorna un errore
       if (!isMember)
         return context.status(403, { error: "Not a member of this chat" });
 
+      // Ottiene i membri della chat
       const existingMembers = await db
         .select({ userId: chatMember.userId })
         .from(chatMember)
         .where(eq(chatMember.chatId, id));
 
-      const existingMemberIds = new Set(existingMembers.map((m) => m.userId));
-
+      // Trova i nuovi membri
       const newMembers = context.body.userIds.filter(
-        (userId) => !existingMemberIds.has(userId)
+        (userId) => !existingMembers.some((m) => m.userId === userId)
       );
 
+      // In caso di nessun nuovo membro, ritorna 0
       if (newMembers.length === 0) return { added: 0 };
 
+      // Aggiunge i nuovi membri alla chat
       await db.insert(chatMember).values(
         newMembers.map((userId) => ({
           chatId: id,
@@ -301,6 +299,7 @@ export const chats = new Elysia({ prefix: "/chats" })
         }))
       );
 
+      // Pubblica l'aggiornamento della chat per tutti i nuovi membri
       for (const userId of newMembers) {
         context.server?.publish(
           userId,
@@ -310,6 +309,7 @@ export const chats = new Elysia({ prefix: "/chats" })
         );
       }
 
+      // Ritorna il numero di membri aggiunti
       return { added: newMembers.length };
     },
     {
@@ -319,11 +319,13 @@ export const chats = new Elysia({ prefix: "/chats" })
       auth: true,
     }
   )
+  // Route per rimuovere un membro da una chat
   .delete(
     "/:id",
     async (context) => {
       const { id } = context.params;
 
+      // Controlla se l'utente corrente è membro della chat
       const membership = await db.query.chatMember.findFirst({
         where: and(
           eq(chatMember.chatId, id),
@@ -331,9 +333,11 @@ export const chats = new Elysia({ prefix: "/chats" })
         ),
       });
 
+      // In caso di non membro, ritorna un errore
       if (!membership)
         return context.status(403, { error: "Not a member of this chat" });
 
+      // Rimuove il membro dalla chat
       const removed = await db
         .delete(chatMember)
         .where(
@@ -341,10 +345,12 @@ export const chats = new Elysia({ prefix: "/chats" })
         )
         .returning();
 
+      // Controlla se la chat ha ancora membri
       const hasMembers = await db.query.chatMember.findFirst({
         where: eq(chatMember.chatId, id),
       });
 
+      // In caso di assenza di membri, rimuove la chat
       if (!hasMembers) {
         await db
           .delete(schema.messageQueue)
@@ -352,6 +358,7 @@ export const chats = new Elysia({ prefix: "/chats" })
         await db.delete(chat).where(eq(chat.id, id));
       }
 
+      // Pubblica l'aggiornamento della chat per tutti i membri rimossi
       for (const user of removed) {
         context.server?.publish(
           user.userId,

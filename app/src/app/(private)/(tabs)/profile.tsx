@@ -41,6 +41,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (session) {
+      // Carica i dati del profilo
       setName(session.user.name);
       setUsername(session.user.username ?? "");
       setEmail(session.user.email);
@@ -52,6 +53,7 @@ export default function ProfileScreen() {
   if (!session) return null;
 
   async function handlePickImage() {
+    // Apre la libreria di selezione delle immagini
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -59,17 +61,25 @@ export default function ProfileScreen() {
       quality: 0.8,
     });
 
+    // Se l'utente ha cancellato la selezione, non fare nulla
     if (result.canceled) return;
 
     const asset = result.assets[0];
 
+    // Imposta l'immagine selezionata
     setSelectedImage({
       uri: asset.uri,
       mimeType: asset.mimeType,
       fileName: asset.fileName,
     });
+
+    // Imposta l'immagine preview
     setImagePreview(asset.uri);
   }
+
+  /**
+   * @description Salva le modifiche del profilo
+   */
   async function handleSaveChanges() {
     if (isSaving) return;
 
@@ -79,6 +89,7 @@ export default function ProfileScreen() {
       let finalImage = imagePreview;
 
       if (selectedImage) {
+        // Crea un FormData per il caricamento dell'immagine
         const formData = new FormData();
 
         formData.append("file", {
@@ -87,6 +98,7 @@ export default function ProfileScreen() {
           type: selectedImage.mimeType || "image/jpeg",
         } as any);
 
+        // Carica l'immagine sul server
         const response = await fetch(`${API_BASE_URL}/uploads/profile`, {
           method: "POST",
           headers: {
@@ -95,6 +107,7 @@ export default function ProfileScreen() {
           body: formData,
         });
 
+        // Se il caricamento fallisce, lancia un errore
         if (!response.ok) {
           const errorData = await response
             .json()
@@ -102,25 +115,32 @@ export default function ProfileScreen() {
           throw new Error(errorData.error || "Upload failed");
         }
 
+        // Ottiene i dati del caricamento
         const data = await response.json();
+
+        // Imposta l'immagine preview
         finalImage = data.url ?? null;
 
+        // Pulisce l'immagine selezionata
         setSelectedImage(null);
       }
 
+      // Aggiorna i dati del profilo
       const { error } = await authClient.updateUser({
         name: name,
         username: username,
         image: finalImage ?? undefined,
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
+      // Imposta l'immagine preview
       setImagePreview(finalImage ?? null);
+
+      // Mostra un avviso di successo
       Alert.alert("Successo", "Profilo aggiornato correttamente");
     } catch (error) {
+      // Se ci sono errori, mostra un avviso
       Alert.alert(
         "Errore",
         "Si è verificato un errore durante la salvataggio delle modifiche"

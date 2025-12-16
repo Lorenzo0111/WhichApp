@@ -2,24 +2,6 @@ import { PrivateKey, PublicKey } from "./types";
 import { bigIntToBytes, bytesToBigInt, modPow } from "./utils";
 
 /**
- * Converte una stringa in un array di byte (UTF-8)
- * @param str - La stringa da convertire
- * @returns L'array di byte convertito
- */
-function stringToBytes(str: string): Uint8Array {
-  return new TextEncoder().encode(str);
-}
-
-/**
- * Converte un array di byte in una stringa (UTF-8)
- * @param bytes - L'array di byte da convertire
- * @returns La stringa convertita
- */
-function bytesToString(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes);
-}
-
-/**
  * Cifra una stringa usando la chiave pubblica RSA
  *
  * @param message - Il messaggio da cifrare
@@ -36,7 +18,7 @@ export async function encryptString(
   const n = BigInt(publicKey.n);
 
   // Converte il messaggio in byte
-  const messageBytes = stringToBytes(message);
+  const messageBytes = new TextEncoder().encode(message);
 
   // Il chunk deve essere più piccolo di n
   const chunkSize = Math.max(1, Math.ceil(n.toString(16).length / 2) - 1);
@@ -106,5 +88,5 @@ export async function decryptString(
   }
 
   // Converte i byte in stringa
-  return bytesToString(new Uint8Array(decryptedBytes));
+  return new TextDecoder().decode(new Uint8Array(decryptedBytes));
 }

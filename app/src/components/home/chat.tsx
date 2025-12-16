@@ -28,6 +28,7 @@ export function ChatItem({
   const swipeMethodsRef = useRef<SwipeableMethods | null>(null);
 
   useEffect(() => {
+    // Ottiene l'ultimo messaggio della chat
     db.select({
       content: schema.message.content,
     })
@@ -41,6 +42,7 @@ export function ChatItem({
   useEffect(() => {
     if (!session?.user.id) return;
 
+    // Carica il numero di messaggi non letti
     const loadUnreadCount = async () => {
       const unreadMessages = await db
         .select({ id: schema.message.id })
@@ -60,18 +62,28 @@ export function ChatItem({
   }, [id, session?.user.id]);
 
   useEffect(() => {
+    // Sottoscrive al WebSocket per ricevere i nuovi messaggi
     const unsubscribe = subscribeToChat(id, (message) => {
+      // Aggiorna l'ultimo messaggio
       setLastMessage(message.content);
+
+      // Incrementa il numero di messaggi non letti
       if (message.sender !== session?.user.id)
         setUnreadCount((prev) => prev + 1);
     });
 
+    // Quando il componente viene smontato, annulla la sottoscrizione
     return unsubscribe;
   }, [id, session?.user.id, subscribeToChat]);
 
+  /**
+   * @description Marca tutti i messaggi non letti come letti
+   */
   const handleMarkAllAsRead = async () => {
+    // Se l'utente non è autenticato, non marcare i messaggi come letti
     if (!session?.user.id) return;
 
+    // Marca tutti i messaggi non letti come letti
     await db
       .update(schema.message)
       .set({ read: true })
@@ -87,10 +99,20 @@ export function ChatItem({
     swipeMethodsRef.current?.close();
   };
 
+  /**
+   * @description Lascia la chat
+   */
   const handleLeaveChat = async () => {
+    // Elimina i messaggi della chat
     await db.delete(schema.message).where(eq(schema.message.chatId, id));
+
+    // Elimina la chat
     await client.chats({ id: id }).delete();
+
+    // Chiude lo swipeable
     swipeMethodsRef.current?.close();
+
+    // Aggiorna la lista delle chat
     refetch();
   };
 
@@ -133,7 +155,8 @@ export function ChatItem({
               <Image
                 source={{
                   uri:
-                    image ?? "https://placehold.co/40?text=" + name.charAt(0),
+                    image ??
+                    "https://placehold.co/40?text=" + (name?.charAt(0) ?? "U"),
                 }}
                 style={{ width: 40, height: 40, borderRadius: 100 }}
               />

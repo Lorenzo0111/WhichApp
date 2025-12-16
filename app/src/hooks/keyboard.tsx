@@ -8,6 +8,10 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+/**
+ * @description Hook per il controllo della visibilità della tastiera
+ * @returns true se la tastiera è visibile, false altrimenti
+ */
 export function useKeyboard() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 

@@ -110,9 +110,7 @@ export default function ChatSettingsScreen() {
       await client.chats({ id }).members.post({ userIds: [userId] });
 
       const res = await client.chats({ id }).get();
-      if (res.data) {
-        setMembers(res.data.members);
-      }
+      if (res.data) setMembers(res.data.members);
 
       setSearchQuery("");
       setSearchResults([]);

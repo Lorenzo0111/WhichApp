@@ -1,5 +1,8 @@
 import type { BetterAuthPlugin } from "better-auth/types";
 
+/**
+ * @description Plugin per il salvataggio delle chiavi pubbliche
+ */
 export const keysPlugin = () => {
   return {
     id: "keys",
