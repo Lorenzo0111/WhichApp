@@ -1,0 +1,30 @@
+# dependencies
+node_modules
+bun.lockb
+
+# turborepo cache
+turbo
+
+# build output
+dist
+build
+.out
+.next
+
+# misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# environment files
+.env
+.env.*
+
+

@@ -1,18 +1,47 @@
 {
   "expo": {
+    "name": "WhichApp",
+    "slug": "whichapp",
     "scheme": "whichapp",
-    "userInterfaceStyle": "automatic",
+    "version": "1.0.0",
     "orientation": "default",
+    "userInterfaceStyle": "automatic",
     "web": {
       "output": "static"
     },
-    "name": "WhichApp",
-    "slug": "whichapp",
+    "android": {
+      "package": "me.lorenzo0111.whichapp",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "me.lorenzo0111.whichapp",
+      "icon": "./assets/WhichApp.icon",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Allow $(PRODUCT_NAME) to access your local network."
+      }
+    },
     "experiments": {
       "typedRoutes": true
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/adaptive-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#0e0e10",
+            "image": "./assets/adaptive-icon.png"
+          }
+        }
+      ],
       "expo-sqlite",
       [
         "expo-secure-store",
@@ -22,15 +51,12 @@
         }
       ]
     ],
-    "android": {
-      "package": "me.lorenzo0111.whichapp"
-    },
-    "ios": {
-      "bundleIdentifier": "me.lorenzo0111.whichapp",
-      "icon": "./assets/WhichApp.icon",
-      "infoPlist": {
-        "NSLocalNetworkUsageDescription": "Allow $(PRODUCT_NAME) to access your local network."
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d4ff4c17-ef4b-4bda-bba8-399b21c754d4"
       }
-    }
+    },
+    "owner": "lorenzo0111"
   }
 }
