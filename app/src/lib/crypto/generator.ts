@@ -3,10 +3,10 @@ import { gcd, generatePrime, modInverse } from "./utils";
 
 /**
  * Genera una coppia di chiavi RSA (pubblica e privata)
- * @param bitLength - La lunghezza in bit della chiave (default: 2048)
+ * @param bitLength - La lunghezza in bit della chiave (default: 1024)
  * @returns Un oggetto contenente la chiave pubblica e privata
  */
-export async function generateKeys(bitLength = 2048): Promise<{
+export async function generateKeys(bitLength = 1024): Promise<{
   publicKey: PublicKey;
   privateKey: PrivateKey;
 }> {
