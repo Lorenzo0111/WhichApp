@@ -26,16 +26,16 @@ export default function NoKeysScreen() {
   async function handleRegenerateKeys() {
     setIsLoading(true);
 
-    // Rigenera le chiavi private
+    // Regenerate the private keys
     requestIdleCallback(async () => {
-      // Attende 100ms per evitare blocchi del thread principale
+      // Wait 100ms to avoid blocking the main thread
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
-        // Tenta di rigenerare le chiavi private
+        // Try to regenerate the private keys
         const { publicKey, privateKey } = await generateKeys();
 
-        // Aggiorna le chiavi private nel database
+        // Update the private keys in the database
         const { data, error } = await authClient.updateUser({
           publicKeyE: publicKey.e,
           publicKeyN: publicKey.n,
@@ -44,32 +44,29 @@ export default function NoKeysScreen() {
         if (error) throw error;
 
         if (data) {
-          // Salva le chiavi private nello storage
+          // Save the private keys to the storage
           SecureStore.setItem(
             PRIVATE_KEY_D(session?.user.id),
-            privateKey.d.toString()
+            privateKey.d.toString(),
           );
           SecureStore.setItem(
             PRIVATE_KEY_N(session?.user.id),
-            privateKey.n.toString()
+            privateKey.n.toString(),
           );
 
-          // Aggiorna la sessione e le chiavi private
+          // Update the session and the private keys
           await refetchSession();
           await refetchKeys();
 
-          // Reindirizza l'utente alla home
+          // Redirect the user to the home
           setTimeout(() => {
             router.replace("/(private)/(tabs)");
             router.replace("/(private)/(tabs)");
           }, 100);
         }
       } catch (error) {
-        // Se ci sono errori, mostra un avviso
-        Alert.alert(
-          "Errore",
-          "Si è verificato un errore durante la rigenerazione delle chiavi"
-        );
+        // If there are errors, show an alert
+        Alert.alert("Error", "An error occurred while regenerating the keys");
         console.error(error);
       } finally {
         setIsLoading(false);
@@ -84,7 +81,7 @@ export default function NoKeysScreen() {
 
         <View className="bg-background w-full h-2/5 mt-auto flex flex-col items-center justify-center rounded-3xl z-10">
           {isLoading ? (
-            <Loading message="Rigenerazione delle chiavi" />
+            <Loading message="Regenerating the keys" />
           ) : (
             <>
               <Text className="text-text text-5xl pt-2 font-bold">
@@ -94,11 +91,11 @@ export default function NoKeysScreen() {
                 />
               </Text>
               <Text className="mt-2 text-text text-center text-xl font-bold">
-                Errore!
+                Error!
               </Text>
               <Text className="text-input text-center text-sm max-w-3/4">
-                Non ci sono chiavi private salvate per questo utente. Rigenera
-                delle nuove chiavi o importane una esistente per continuare.
+                There are no private keys saved for this user. Regenerate new
+                keys or import an existing one to continue.
               </Text>
               <View className="flex flex-col gap-4 mt-4 w-3/4">
                 <View className="flex flex-row gap-4 w-full">
@@ -109,14 +106,14 @@ export default function NoKeysScreen() {
                   <Button
                     variant="destructive"
                     className="flex-1"
-                    label="Rigenera"
+                    label="Regenerate"
                     onPress={handleRegenerateKeys}
                     loading={isLoading}
                   />
                 </View>
                 <Button
                   variant="outline"
-                  label="Annulla"
+                  label="Cancel"
                   disabled={isLoading}
                   onPress={async () => {
                     await authClient.signOut();

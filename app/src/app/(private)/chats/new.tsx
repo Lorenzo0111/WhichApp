@@ -56,7 +56,7 @@ export default function NewChatScreen() {
             />
           </TouchableOpacity>
 
-          <Text className="text-text text-2xl font-bold ml-2">Nuova Chat</Text>
+          <Text className="text-text text-2xl font-bold ml-2">New Chat</Text>
         </View>
       </Header>
 
@@ -69,7 +69,7 @@ export default function NewChatScreen() {
             />
           </View>
           <Input
-            placeholder="Cerca per nome utente..."
+            placeholder="Search for a user..."
             value={query}
             onChangeText={setQuery}
             returnKeyType="search"
@@ -92,9 +92,7 @@ export default function NewChatScreen() {
                 size={50}
                 color={(placeholderColor as ColorValue) ?? "gray"}
               />
-              <Text className="text-placeholder text-lg">
-                Nessun utente trovato
-              </Text>
+              <Text className="text-placeholder text-lg">No user found</Text>
             </View>
           ) : null
         }

@@ -1,6 +1,6 @@
-import { View } from "react-native";
 import { Loading } from "@/components/loading";
 import { ChatBackground } from "@/components/ui/chat-background";
+import { View } from "react-native";
 
 export default function LoadingScreen() {
   return (
@@ -8,7 +8,7 @@ export default function LoadingScreen() {
       <ChatBackground />
 
       <View className="bg-background w-full h-1/2 mt-auto flex flex-col items-center justify-center rounded-3xl z-10">
-        <Loading message="Caricamento in corso..." />
+        <Loading message="Loading..." />
       </View>
     </View>
   );

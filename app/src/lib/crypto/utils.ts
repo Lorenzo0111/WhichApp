@@ -1,9 +1,9 @@
 import * as Crypto from "expo-crypto";
 
 /**
- * Converte un array di byte in un bigint
- * @param bytes - L'array di byte da convertire
- * @returns Il bigint convertito
+ * Convert an array of bytes to a bigint
+ * @param bytes - The array of bytes to convert
+ * @returns The converted bigint
  */
 export function bytesToBigInt(bytes: Uint8Array): bigint {
   let hex = "0x";
@@ -16,16 +16,16 @@ export function bytesToBigInt(bytes: Uint8Array): bigint {
 }
 
 /**
- * Converte un bigint in un array di byte
- * @param num - Il bigint da convertire
- * @returns L'array di byte convertito
+ * Convert a bigint to an array of bytes
+ * @param num - The bigint to convert
+ * @returns The converted array of bytes
  */
 export function bigIntToBytes(num: bigint): Uint8Array {
   if (num === 0n) return new Uint8Array([0]);
 
   let hex = num.toString(16);
 
-  // Assicura che la lunghezza sia pari
+  // Ensure the length is even
   if (hex.length % 2 !== 0) {
     hex = "0" + hex;
   }
@@ -38,63 +38,63 @@ export function bigIntToBytes(num: bigint): Uint8Array {
 }
 
 /**
- * Genera un grande numero casuale
- * @param bits - Il numero di bit del numero casuale
- * @returns Un grande numero casuale
+ * Generate a large random number
+ * @param bits - The number of bits of the random number
+ * @returns A large random number
  */
 function getRandomBigInt(bits: number): bigint {
-  // Calcola il numero di byte necessario per il numero casuale (8 bit per byte)
+  // Calculate the number of bytes needed for the random number (8 bits per byte)
   const bytes = Math.ceil(bits / 8);
 
-  // Genera i byte casuali
+  // Generate the random bytes
   const randomBytes = Crypto.getRandomBytes(bytes);
 
-  // Converte i byte in un bigint
+  // Convert the bytes to a bigint
   return bytesToBigInt(randomBytes);
 }
 
 /**
- * Calcola (base^exp) % mod nel modulo
+ * Calculate (base^exp) % mod in the modulus
  * Yield control back to the event loop periodically to avoid blocking
  *
- * @param base La base
- * @param exp  L'esponente
- * @param mod  Il modulo
- * @param async - Se true, la funzione è eseguita in modo asincrono
- * @return Il numero elevato all'esponente nel modulo
+ * @param base The base
+ * @param exp  The exponent
+ * @param mod  The modulo
+ * @param async - If true, the function is executed asynchronously
+ * @return The number raised to the exponent in the modulus
  */
 export async function modPow(
   base: bigint,
   exp: bigint,
   mod: bigint,
-  { async }: { async?: boolean } = { async: true }
+  { async }: { async?: boolean } = { async: true },
 ): Promise<bigint> {
-  // Risultato finale inizializzato a 1
+  // Final result initialized to 1
   let result = 1n;
 
-  // Ridurre la base nel modulo
+  // Reduce the base in the modulus
   base = base % mod;
 
-  // Se la base è 0, il risultato sarà 0
+  // If the base is 0, the result will be 0
   if (base == 0n) return 0n;
 
   let iterationCount = 0;
 
-  // Itera finché l'esponente non è 0
+  // Iterate until the exponent is 0
   while (exp > 0) {
-    // Se l'esponente è dispari
+    // If the exponent is odd
     if (exp % 2n == 1n) {
-      // Moltiplica il risultato per la base ridotto nel modulo m
+      // Multiply the result by the reduced base in the modulus m
       result = (result * base) % mod;
     }
 
-    // Eleva la base al quadrato e la riduce nel modulo m
+    // Square the base and reduce it in the modulus m
     base = (base * base) % mod;
 
-    // Divide l'esponente per 2
+    // Divide the exponent by 2
     exp = exp / 2n;
 
-    // Ogni 1000 iterazioni, rilascia il thread per evitare blocchi
+    // Every 1000 iterations, yield the thread to avoid blocking
     iterationCount++;
     if (iterationCount % 1000 === 0 && async) {
       await new Promise((resolve) => setImmediate(resolve));
@@ -105,29 +105,29 @@ export async function modPow(
 }
 
 /**
- * Controlla se un numero è primo utilizzando l'algoritmo di controllo di Fermat
- * Prima di effettuare questi controlli viene verificato se il numero è pari per evitare iterazioni extra
- * Viene inoltre controllato se il numero è 2 e 3 in quanto è noto che sono primi
+ * Check if a number is prime using the Fermat primality test
+ * Before performing these checks, it is checked if the number is even to avoid extra iterations
+ * It is also checked if the number is 2 and 3 as it is known that they are prime
  *
- * @param numero Il numero da controllare
- * @return true se è primo
+ * @param number The number to check
+ * @return true if it is prime
  */
-export async function isPrime(numero: bigint, bits: number): Promise<boolean> {
-  if (numero <= 1) return false;
-  if (numero == 2n || numero == 3n) return true;
-  if (numero % 2n == 0n) return false;
+export async function isPrime(number: bigint, bits: number): Promise<boolean> {
+  if (number <= 1) return false;
+  if (number == 2n || number == 3n) return true;
+  if (number % 2n == 0n) return false;
 
-  // Numero di iterazioni. Più è alto meno sono le probabilità di un falso positivo
+  // Number of iterations. The higher it is, the less the probability of a false positive
   const k = 10n;
 
-  // Ogni iterazione sceglie una base casuale con 2 <= base <= numero-2
+  // Each iteration chooses a random base with 2 <= base <= number-2
   for (let i = 0n; i < k; i++) {
     const a = 2n + getRandomBigInt(bits - 2);
 
     // Formula: a^(p-1) mod p
-    const result = await modPow(a, numero - 1n, numero);
+    const result = await modPow(a, number - 1n, number);
 
-    // Se il risultato non è 1 allora il numero è sicuramente composto
+    // If the result is not 1, then the number is certainly composite
     if (result != 1n) return false;
   }
 
@@ -135,23 +135,23 @@ export async function isPrime(numero: bigint, bits: number): Promise<boolean> {
 }
 
 /**
- * Genera un numero primo casuale di una certa lunghezza in bit
- * @param bits - Il numero di bit del numero primo da generare
- * @returns Un numero primo casuale
+ * Generate a random prime number of a certain bit length
+ * @param bits - The number of bits of the prime number to generate
+ * @returns A random prime number
  */
 export async function generatePrime(bits: number): Promise<bigint> {
   while (true) {
-    const numero = getRandomBigInt(bits);
-    if (await isPrime(numero, bits)) return numero;
+    const number = getRandomBigInt(bits);
+    if (await isPrime(number, bits)) return number;
     await new Promise((resolve) => setImmediate(resolve));
   }
 }
 
 /**
- * Calcola il massimo comun divisore di due numeri
- * @param a - Il primo numero
- * @param b - Il secondo numero
- * @returns Il massimo comun divisore dei due numeri
+ * Calculate the greatest common divisor of two numbers
+ * @param a - The first number
+ * @param b - The second number
+ * @returns The greatest common divisor of the two numbers
  */
 export function gcd(a: bigint, b: bigint): bigint {
   while (b !== 0n) {
@@ -161,18 +161,18 @@ export function gcd(a: bigint, b: bigint): bigint {
 }
 
 /**
- * Calcola l'inverso modulare di `a` modulo `m`.
- * Restituisce `x` tale che (a * x) % m === 1n
+ * Calculate the modular inverse of `a` modulo `m`.
+ * Returns `x` such that (a * x) % m === 1n
  *
- * @param a - Il numero di cui calcolare l'inverso
- * @param m - Il modulo
- * @returns L'inverso modulare, oppure null se non esiste (quando gcd(a, m) !== 1)
+ * @param a - The number to calculate the inverse of
+ * @param m - The modulus
+ * @returns The modular inverse, or null if it does not exist (when gcd(a, m) !== 1)
  */
 export function modInverse(a: bigint, m: bigint): bigint | null {
-  // Normalizza a per gestire valori negativi
+  // Normalize a to handle negative values
   a = ((a % m) + m) % m;
 
-  // Algoritmo Esteso di Euclide
+  // Extended Euclidean algorithm
   let [oldR, r] = [a, m];
   let [oldS, s] = [1n, 0n];
 
@@ -182,9 +182,9 @@ export function modInverse(a: bigint, m: bigint): bigint | null {
     [oldS, s] = [s, oldS - quotient * s];
   }
 
-  // Se gcd !== 1, l'inverso non esiste
+  // If gcd !== 1, the inverse does not exist
   if (oldR !== 1n) return null;
 
-  // Assicura che il risultato sia positivo
+  // Ensure the result is positive
   return ((oldS % m) + m) % m;
 }

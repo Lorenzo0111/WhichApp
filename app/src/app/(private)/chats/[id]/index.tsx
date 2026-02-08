@@ -315,7 +315,7 @@ export default function ChatScreen() {
         </TouchableOpacity>
 
         <TextInput
-          placeholder="Scrivi un messaggio"
+          placeholder="Write a message"
           className="text-text w-full flex-1"
           multiline
           placeholderTextColor={inputColor as ColorValue}

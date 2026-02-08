@@ -35,13 +35,13 @@ export default function ProfileScreen() {
   const [password, setPassword] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
-    null
+    null,
   );
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (session) {
-      // Carica i dati del profilo
+      // Load the profile data
       setName(session.user.name);
       setUsername(session.user.username ?? "");
       setEmail(session.user.email);
@@ -53,7 +53,7 @@ export default function ProfileScreen() {
   if (!session) return null;
 
   async function handlePickImage() {
-    // Apre la libreria di selezione delle immagini
+    // Open the image library
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -61,24 +61,24 @@ export default function ProfileScreen() {
       quality: 0.8,
     });
 
-    // Se l'utente ha cancellato la selezione, non fare nulla
+    // If the user has canceled the selection, do nothing
     if (result.canceled) return;
 
     const asset = result.assets[0];
 
-    // Imposta l'immagine selezionata
+    // Set the selected image
     setSelectedImage({
       uri: asset.uri,
       mimeType: asset.mimeType,
       fileName: asset.fileName,
     });
 
-    // Imposta l'immagine preview
+    // Set the image preview
     setImagePreview(asset.uri);
   }
 
   /**
-   * @description Salva le modifiche del profilo
+   * @description Save the profile changes
    */
   async function handleSaveChanges() {
     if (isSaving) return;
@@ -89,7 +89,7 @@ export default function ProfileScreen() {
       let finalImage = imagePreview;
 
       if (selectedImage) {
-        // Crea un FormData per il caricamento dell'immagine
+        // Create a FormData for the image upload
         const formData = new FormData();
 
         formData.append("file", {
@@ -98,7 +98,7 @@ export default function ProfileScreen() {
           type: selectedImage.mimeType || "image/jpeg",
         } as any);
 
-        // Carica l'immagine sul server
+        // Upload the image to the server
         const response = await fetch(`${API_BASE_URL}/uploads/profile`, {
           method: "POST",
           headers: {
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
           body: formData,
         });
 
-        // Se il caricamento fallisce, lancia un errore
+        // If the upload fails, throw an error
         if (!response.ok) {
           const errorData = await response
             .json()
@@ -115,17 +115,17 @@ export default function ProfileScreen() {
           throw new Error(errorData.error || "Upload failed");
         }
 
-        // Ottiene i dati del caricamento
+        // Get the upload data
         const data = await response.json();
 
-        // Imposta l'immagine preview
+        // Set the image preview
         finalImage = data.url ?? null;
 
-        // Pulisce l'immagine selezionata
+        // Clear the selected image
         setSelectedImage(null);
       }
 
-      // Aggiorna i dati del profilo
+      // Update the profile data
       const { error } = await authClient.updateUser({
         name: name,
         username: username,
@@ -134,17 +134,14 @@ export default function ProfileScreen() {
 
       if (error) throw error;
 
-      // Imposta l'immagine preview
+      // Set the image preview
       setImagePreview(finalImage ?? null);
 
-      // Mostra un avviso di successo
-      Alert.alert("Successo", "Profilo aggiornato correttamente");
+      // Show a success alert
+      Alert.alert("Success", "Profile updated successfully");
     } catch (error) {
-      // Se ci sono errori, mostra un avviso
-      Alert.alert(
-        "Errore",
-        "Si è verificato un errore durante la salvataggio delle modifiche"
-      );
+      // If there are errors, show an alert
+      Alert.alert("Error", "An error occurred while saving the changes");
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -156,7 +153,7 @@ export default function ProfileScreen() {
       <Header>
         <Text className="text-text text-2xl font-bold flex justify-center items-center gap-2">
           <UserIcon color={(textColor as ColorValue) ?? "white"} size={20} />{" "}
-          Profilo
+          Profile
         </Text>
 
         <TouchableOpacity
@@ -184,7 +181,7 @@ export default function ProfileScreen() {
 
       <View className="gap-4 px-4 flex flex-col mt-4">
         <Input
-          placeholder="Nome"
+          placeholder="Name"
           keyboardType="default"
           autoCapitalize="words"
           autoComplete="name"
@@ -193,7 +190,7 @@ export default function ProfileScreen() {
           onChangeText={setName}
         />
         <Input
-          placeholder="Nome Utente"
+          placeholder="Username"
           keyboardType="default"
           autoCapitalize="none"
           autoComplete="username"
@@ -226,7 +223,7 @@ export default function ProfileScreen() {
         <View className="flex flex-row gap-4">
           <Button
             className="flex-1"
-            label="Salva"
+            label="Save"
             onPress={handleSaveChanges}
             disabled={isSaving}
           />
@@ -237,14 +234,14 @@ export default function ProfileScreen() {
             <Button
               className="flex-1"
               variant="outline"
-              label="Esporta Chiavi"
+              label="Export Keys"
               onPress={async () => {}}
             />
           </Link>
           <Button
             className="flex-1"
             variant="destructive"
-            label="Elimina chiavi"
+            label="Delete Keys"
             onPress={async () => {
               await SecureStore.deleteItemAsync(PRIVATE_KEY_D(session.user.id));
               await SecureStore.deleteItemAsync(PRIVATE_KEY_N(session.user.id));

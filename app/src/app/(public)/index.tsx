@@ -22,7 +22,7 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      // Tenta di accedere
+      // Try to login
       const { data, error } = await authClient.signIn.username({
         username: username,
         password: password,
@@ -31,19 +31,19 @@ export default function LoginScreen() {
       if (error) throw error;
 
       if (data) {
-        // Verifica se ci sono chiavi private salvate
+        // Check if there are private keys saved
         const hasPrivateKey =
           !!SecureStore.getItem(PRIVATE_KEY_D(data.user.id)) &&
           !!SecureStore.getItem(PRIVATE_KEY_N(data.user.id));
 
-        // Se non ci sono chiavi private salvate, reindirizza alla schermata di no-keys
+        // If there are no private keys saved, redirect to the no-keys screen
         if (!hasPrivateKey) router.push("/no-keys");
       }
     } catch (error: any) {
-      // Se ci sono errori, mostra un avviso
+      // If there are errors, show an alert
       Alert.alert(
-        "Errore",
-        error.message ?? "Si è verificato un errore durante l'accesso"
+        "Error",
+        error.message ?? "An error occurred while logging in",
       );
       console.error(error);
     } finally {
@@ -58,23 +58,23 @@ export default function LoginScreen() {
       <View
         className={classNames(
           "bg-background w-full mt-auto flex flex-col items-center justify-center rounded-3xl z-10",
-          keyboard ? "h-3/4 rounded-b-none justify-start pt-10" : "h-2/5"
+          keyboard ? "h-3/4 rounded-b-none justify-start pt-10" : "h-2/5",
         )}
       >
         <View className="flex flex-row gap-2">
           <Text className="text-text text-5xl pt-2 font-bold">👋</Text>
 
           <View className="flex flex-col items-start justify-center">
-            <Text className="text-text text-xl font-bold">Bentornato!</Text>
+            <Text className="text-text text-xl font-bold">Welcome back!</Text>
             <Text className="text-input text-sm">
-              Accedi per riprendere da dove hai lasciato
+              Login to continue where you left off
             </Text>
           </View>
         </View>
 
         <View className="w-full px-10 mt-6 flex flex-col gap-2">
           <Input
-            placeholder="Nome Utente"
+            placeholder="Username"
             keyboardType="default"
             autoCapitalize="none"
             autoComplete="username"
@@ -93,11 +93,11 @@ export default function LoginScreen() {
             onChangeText={setPassword}
           />
 
-          <Button loading={isLoading} onPress={handleLogin} label="Accedi" />
+          <Button loading={isLoading} onPress={handleLogin} label="Login" />
           <Text className="text-input text-center text-sm pt-2">
-            Sei nuovo?{" "}
+            Are you new?{" "}
             <Link href="/register" className="text-primary">
-              Registrati
+              Register
             </Link>
           </Text>
         </View>

@@ -173,7 +173,7 @@ export default function ChatSettingsScreen() {
                 size={20}
               />
             </TouchableOpacity>
-            <Text className="text-text text-2xl font-bold">Impostazioni</Text>
+            <Text className="text-text text-2xl font-bold">Settings</Text>
           </View>
 
           <TouchableOpacity onPress={handleSave} disabled={saving}>
@@ -196,12 +196,12 @@ export default function ChatSettingsScreen() {
 
         <View className="mb-4">
           <Text className="text-text text-sm font-semibold mb-2">
-            Nome del gruppo
+            Group name
           </Text>
           <Input
             value={chatName}
             onChangeText={setChatName}
-            placeholder="Inserisci il nome del gruppo"
+            placeholder="Enter the group name"
             placeholderTextColor={inputColor as ColorValue}
             className="text-text"
           />
@@ -209,7 +209,7 @@ export default function ChatSettingsScreen() {
 
         <View className="mb-4">
           <Text className="text-text text-lg font-bold mb-3">
-            Membri ({members.length})
+            Members ({members.length})
           </Text>
           <FlatList
             data={members}
@@ -224,7 +224,7 @@ export default function ChatSettingsScreen() {
 
         <View className="mb-4">
           <Text className="text-text text-lg font-bold mb-3">
-            Aggiungi Membri
+            Add Members
           </Text>
           <View className="relative">
             <View className="flex flex-row items-center gap-2 border border-border rounded-lg px-3 py-2">
@@ -235,7 +235,7 @@ export default function ChatSettingsScreen() {
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Cerca utenti..."
+                placeholder="Search users..."
                 placeholderTextColor={inputColor as ColorValue}
                 className="text-text flex-1"
               />
@@ -283,13 +283,13 @@ export default function ChatSettingsScreen() {
         <View className="mt-8 flex gap-3">
           <Button
             variant="outline"
-            label="Elimina tutti i messaggi"
+            label="Delete all messages"
             loading={deletingMessages}
             onPress={handleDeleteMessages}
           />
           <Button
             variant="destructive"
-            label="Lascia la chat"
+            label="Leave the chat"
             loading={leaving}
             onPress={handleLeaveChat}
           />

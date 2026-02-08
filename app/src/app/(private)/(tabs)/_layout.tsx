@@ -2,7 +2,7 @@ import BaseLayout from "@/components/base-layout";
 import { authClient } from "@/lib/auth";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 
-export default function PublicLayout() {
+export default function PrivateLayout() {
   const { data: session } = authClient.useSession();
 
   return (
@@ -14,7 +14,7 @@ export default function PublicLayout() {
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="profile">
-          <Label>{session?.user.name ?? "Profilo"}</Label>
+          <Label>{session?.user.name ?? "Profile"}</Label>
           <Icon sf="person.fill" />
         </NativeTabs.Trigger>
       </NativeTabs>

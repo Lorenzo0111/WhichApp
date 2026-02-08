@@ -11,12 +11,12 @@
     "./auth": "./src/lib/auth/client.ts"
   },
   "dependencies": {
-    "@better-auth/expo": "^1.4.10",
-    "@sinclair/typebox": "^0.34.46",
-    "better-auth": "^1.4.10",
+    "@better-auth/expo": "^1.4.18",
+    "@sinclair/typebox": "^0.34.48",
+    "better-auth": "^1.4.18",
     "drizzle-orm": "^0.45.1",
-    "elysia": "1.4.21",
-    "dotenv": "^17.2.3",
+    "elysia": "1.4.22",
+    "dotenv": "^17.2.4",
     "drizzle-kit": "^0.31.8"
   },
   "devDependencies": {

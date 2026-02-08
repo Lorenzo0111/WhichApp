@@ -7,7 +7,7 @@ import { db } from "../db";
 import { keysPlugin } from "./plugins";
 
 /**
- * @description Configurazione del gestore dell'autenticazione
+ * @description Authentication server configuration
  */
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -37,17 +37,17 @@ export const auth = betterAuth({
 });
 
 /**
- * @description Macro per la gestione dell'autenticazione
+ * @description Macro to handle authentication
  */
 export const betterAuthMacro = new Elysia({ name: "better-auth" }).macro({
   auth: {
     async resolve({ status, query, request: { headers } }) {
-      // Ottiene un eventuale OTT presente nella query
+      // Get an optional OTT present in the query
       const token = query.token;
 
-      // Controlla se sono presenti cookie nell'header della richiesta
+      // Check if cookies are present in the request header
       if (headers.has("Cookie")) {
-        // Se sono presenti, effettua l'autenticazione tramite cookie
+        // If present, authenticate via cookie
         const session = await auth.api.getSession({
           headers,
         });
@@ -60,10 +60,10 @@ export const betterAuthMacro = new Elysia({ name: "better-auth" }).macro({
         };
       }
 
-      // Se non è presente l'OTT, ritorna 401
+      // If the OTT is not present, return 401
       if (!token) return status(401);
 
-      // Altrimenti, prova a verificare e autenticare tramite OTT
+      // Otherwise, try to verify and authenticate via OTT
       try {
         const session = await auth.api.verifyOneTimeToken({ body: { token } });
         if (!session.user) return status(401);

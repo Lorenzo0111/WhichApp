@@ -4,19 +4,19 @@ import { mkdir } from "fs/promises";
 import { extname, join, resolve } from "path";
 import { betterAuthMacro } from "../lib/auth/server";
 
-// Opzioni di configurazione per la gestione dei file caricati
+// Configuration options for the file upload management
 
-// Directory di base per i file caricati
+// Base directory for uploaded files
 const UPLOAD_ROOT = join(process.cwd(), "uploads");
-// Dimensione massima per le immagini
+// Maximum size for images
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-// Tipi di file supportati per le immagini
+// Supported file types for images
 const ALLOWED_MIME = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 /**
- * @description Verifica che il percorso del file sia all'interno della directory di base per i file caricati
- * @param targetPath Percorso del file da verificare
- * @returns Percorso del file normalizzato
+ * @description Check if the file path is within the base directory for uploaded files
+ * @param targetPath Path of the file to check
+ * @returns Normalized file path
  */
 const ensureWithinUploadRoot = (targetPath: string) => {
   const normalized = resolve(targetPath);
@@ -28,9 +28,9 @@ const ensureWithinUploadRoot = (targetPath: string) => {
 };
 
 /**
- * @description Converte il tipo MIME in un'estensione di file
- * @param mime Tipo MIME del file
- * @returns Estensione del file
+ * @description Convert the MIME type to a file extension
+ * @param mime MIME type of the file
+ * @returns File extension
  */
 const mimeToExtension = (mime?: string | null) => {
   switch (mime) {
@@ -46,12 +46,12 @@ const mimeToExtension = (mime?: string | null) => {
 };
 
 /**
- * @description Routes per la gestione dei file caricati
+ * @description Routes to handle uploaded files
  */
 export const uploads = new Elysia({ prefix: "/uploads" })
-  // Monta la macro per la gestione dell'autenticazione
+  // Mount the authentication macro
   .use(betterAuthMacro)
-  // Route per caricare una foto profilo
+  // Route to upload a profile picture
   .post(
     "/profile",
     async ({ body, user }) => {
@@ -62,19 +62,19 @@ export const uploads = new Elysia({ prefix: "/uploads" })
       const filename = `${randomUUID()}${extension}`;
       const userFolder = join(UPLOAD_ROOT, user.id);
 
-      // Crea la directory per l'utente se non esiste
+      // Create the directory for the user if it does not exist
       await mkdir(userFolder, { recursive: true });
 
       const filePath = ensureWithinUploadRoot(join(userFolder, filename));
 
-      // Converte il file in un array di byte
+      // Convert the file to an array of bytes
       const arrayBuffer = await file.arrayBuffer();
       await Bun.write(filePath, arrayBuffer);
 
-      // Genera l'URL del file e lo ritorna
+      // Generate the file URL and return it
       const baseUrl = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "";
       const url = `${baseUrl}/uploads/${encodeURIComponent(
-        user.id
+        user.id,
       )}/${encodeURIComponent(filename)}`;
 
       return { url };
@@ -87,25 +87,25 @@ export const uploads = new Elysia({ prefix: "/uploads" })
         }),
       }),
       auth: true,
-    }
+    },
   )
-  // Route per ottenere un file caricato
+  // Route to get an uploaded file
   .get("/:userId/:fileName", async ({ params, set }) => {
     const sanitizedUser = params.userId.replace(/[^a-zA-Z0-9_-]/g, "");
 
-    // Verifica che il percorso del file sia all'interno della directory di base per i file caricati
+    // Check if the file path is within the base directory for uploaded files
     const filePath = ensureWithinUploadRoot(
-      join(UPLOAD_ROOT, sanitizedUser, params.fileName)
+      join(UPLOAD_ROOT, sanitizedUser, params.fileName),
     );
     const file = Bun.file(filePath);
 
-    // Se il file non esiste, ritorna un errore
+    // If the file does not exist, return an error
     if (!(await file.exists())) {
       set.status = 404;
       return { error: "File not found" };
     }
 
-    // Imposta headers per il file
+    // Set headers for the file
     set.headers["content-type"] = file.type || "application/octet-stream";
     set.headers["cache-control"] = "public, max-age=31536000";
 

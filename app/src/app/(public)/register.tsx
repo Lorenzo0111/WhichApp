@@ -27,10 +27,10 @@ export default function RegisterScreen() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
-        // Genera le chiavi private
+        // Generate private keys
         const { publicKey, privateKey } = await generateKeys();
 
-        // Registra l'utente
+        // Register the user
         const { data, error } = await authClient.signUp.email({
           email: email,
           name: name,
@@ -44,7 +44,7 @@ export default function RegisterScreen() {
         if (error) throw error;
 
         if (data) {
-          // Salva le chiavi private nello storage
+          // Save the private keys to the storage
           SecureStore.setItem(
             PRIVATE_KEY_D(data.user.id),
             privateKey.d.toString()
@@ -55,10 +55,10 @@ export default function RegisterScreen() {
           );
         }
       } catch (error: any) {
-        // Se ci sono errori, mostra un avviso
+        // If there are errors, show an alert
         Alert.alert(
-          "Errore",
-          error.message ?? "Si è verificato un errore durante la registrazione"
+          "Error",
+          error.message ?? "An error occurred while registering",
         );
         console.error(error);
       } finally {
@@ -78,22 +78,22 @@ export default function RegisterScreen() {
         )}
       >
         {isLoading ? (
-          <Loading message="Stiamo creando il tuo account" />
+          <Loading message="We are creating your account" />
         ) : (
           <>
             <View className="flex flex-row gap-2">
               <Text className="text-text text-5xl pt-2 font-bold">👋</Text>
 
               <View className="flex flex-col items-start justify-center">
-                <Text className="text-text text-xl font-bold">Benvenuto!</Text>
+                <Text className="text-text text-xl font-bold">Welcome!</Text>
                 <Text className="text-input text-sm">
-                  Inizia a chattare con i tuoi amici e familiari
+                  Start chatting with your friends and family
                 </Text>
               </View>
             </View>
             <View className="w-full px-10 mt-6 flex flex-col gap-2">
               <Input
-                placeholder="Nome"
+                placeholder="Name"
                 keyboardType="default"
                 autoCapitalize="words"
                 autoComplete="name"
@@ -102,7 +102,7 @@ export default function RegisterScreen() {
                 onChangeText={setName}
               />
               <Input
-                placeholder="Nome Utente"
+                placeholder="Username"
                 keyboardType="default"
                 autoCapitalize="none"
                 autoComplete="username"
@@ -133,12 +133,12 @@ export default function RegisterScreen() {
               <Button
                 loading={isLoading}
                 onPress={handleRegister}
-                label="Registrati"
+                label="Register"
               />
               <Text className="text-input text-center text-sm pt-2">
-                Hai già un account?{" "}
+                Already have an account?{" "}
                 <Link href="/" className="text-primary">
-                  Accedi
+                  Login
                 </Link>
               </Text>
             </View>

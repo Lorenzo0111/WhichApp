@@ -6,7 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL } from "./constants";
 
 /**
- * @description Client per la gestione dell'autenticazione
+ * @description Client for authentication management
  */
 export const authClient = createAuthClient({
   baseURL: API_BASE_URL,
