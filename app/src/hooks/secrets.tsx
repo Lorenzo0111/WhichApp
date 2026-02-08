@@ -11,7 +11,7 @@ import {
 } from "react";
 
 /**
- * @description Tipo per lo stato delle chiavi private
+ * @description Type for the private keys state
  */
 interface PrivateKeyState {
   loading: boolean;
@@ -20,14 +20,14 @@ interface PrivateKeyState {
 }
 
 /**
- * @description Contesto per le chiavi private
+ * @description Context for the private keys
  */
 const PrivateKeyContext = createContext<PrivateKeyState | null>(null);
 
 /**
- * @description Provider per le chiavi private
- * @param children - I figli del provider
- * @returns Il provider per le chiavi private
+ * @description Provider for the private keys
+ * @param children - The children of the provider
+ * @returns The provider for the private keys
  */
 export function PrivateKeyProvider({
   children,

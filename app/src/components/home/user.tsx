@@ -33,8 +33,8 @@ export const UserItem = memo(function UserItem({
     }
 
     Alert.alert(
-      "Errore",
-      "Si è verificato un errore durante la creazione del chat"
+      "Error",
+      "An error occurred while creating the chat",
     );
   };
 

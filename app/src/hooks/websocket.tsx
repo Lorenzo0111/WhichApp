@@ -17,7 +17,7 @@ import {
 } from "react";
 
 /**
- * @description Tipo di messaggio del WebSocket
+ * @description Type for the WebSocket message
  */
 type WebSocketMessage =
   | {
@@ -38,7 +38,7 @@ type WebSocketMessage =
     };
 
 /**
- * @description Tipo per gli utenti che devono ricevere un messaggio dal WebSocket
+ * @description Type for the users that must receive a message from the WebSocket
  */
 interface WebSocketReceiver {
   id: string;
@@ -47,74 +47,74 @@ interface WebSocketReceiver {
 }
 
 /**
- * @description Tipo per il contesto del WebSocket
+ * @description Type for the WebSocket context
  */
 interface WebSocketContextType {
   /**
-   * @description Indica se il WebSocket è connesso
+   * @description Indicates if the WebSocket is connected
    */
   connected: boolean;
   /**
-   * @description Invia un messaggio a uno o più utenti
-   * @param chatId - L'ID della chat
-   * @param content - Il contenuto del messaggio
-   * @param receivers - Gli utenti che devono ricevere il messaggio
+   * @description Send a message to one or more users
+   * @param chatId - The ID of the chat
+   * @param content - The content of the message
+   * @param receivers - The users that must receive the message
    */
   sendMessage: (
     chatId: string,
     content: string,
-    receivers: Array<WebSocketReceiver>
+    receivers: Array<WebSocketReceiver>,
   ) => Promise<void>;
   /**
-   * @description Aggiunge un listener a una chat per ricevere i suoi messaggi
-   * @param chatId - L'ID della chat
-   * @param callback - La funzione da chiamare quando viene ricevuto un messaggio
+   * @description Add a listener to a chat to receive its messages
+   * @param chatId - The ID of the chat
+   * @param callback - The function to call when a message is received
    */
   subscribeToChat: (
     chatId: string,
-    callback: (message: Message) => void
+    callback: (message: Message) => void,
   ) => () => void;
   /**
-   * @description Aggiunge un listener a un utente per ricevere gli aggiornamenti dello stato di connessione
-   * @param userId - L'ID dell'utente
-   * @param callback - La funzione da chiamare quando viene ricevuta una connessione
+   * @description Add a listener to a user to receive the updates of the connection status
+   * @param userId - The ID of the user
+   * @param callback - The function to call when a connection is received
    */
   subscribeToUser: (
     userId: string,
-    callback: (connection: { user: string; online: boolean }) => void
+    callback: (connection: { user: string; online: boolean }) => void,
   ) => () => void;
   /**
-   * @description Aggiunge un listener a tutti i messaggi
-   * @param callback - La funzione da chiamare quando viene ricevuto un messaggio
+   * @description Add a listener to all messages
+   * @param callback - The function to call when a message is received
    */
   subscribeToAll: (callback: (message: Message) => void) => () => void;
   /**
-   * @description Aggiunge un listener a tutti gli aggiornamenti della lista delle chat
-   * @param callback - La funzione da chiamare quando viene ricevuto un aggiornamento
+   * @description Add a listener to all the updates of the chat list
+   * @param callback - The function to call when an update is received
    */
   subscribeToRefetch: (callback: () => void) => () => void;
 }
 
 /**
- * @description Contesto del WebSocket
+ * @description Context for the WebSocket
  */
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
 /**
- * @description Provider del WebSocket
- * @param children - I figli del provider
- * @returns Il provider del WebSocket
+ * @description Provider for the WebSocket
+ * @param children - The children of the provider
+ * @returns The provider for the WebSocket
  */
 export function WebSocketProvider({ children }: { children: ReactNode }) {
   const { data: session } = authClient.useSession();
 
-  // Stato del WebSocket
+  // State of the WebSocket
   const [ws, setWs] = useState<WebSocketConnection | null>(null);
   const [connected, setConnected] = useState(false);
 
-  // Ref per i listener
+  // Ref for the listeners
   const chatCallbacksRef = useRef<Map<string, Set<(message: Message) => void>>>(
-    new Map()
+    new Map(),
   );
   const onlineCallbacksRef = useRef<
     Map<string, Set<(connection: { user: string; online: boolean }) => void>>
@@ -123,21 +123,21 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const refetchCallbacksRef = useRef<Set<() => void>>(new Set());
 
   useEffect(() => {
-    // Se l'utente non è autenticato, non connettere
+    // If the user is not authenticated, do not connect
     if (!session?.user.id) return;
 
-    // Variabili per la connessione
+    // Variables for the connection
     let wsConnection: WebSocketConnection | null = null;
     let reconnectTimeout: ReturnType<typeof setTimeout>;
 
-    // Funzione per la connessione
+    // Function for the connection
     const connect = async () => {
       try {
-        // Genera un OTT per la connessione
+        // Generate a one-time token for the connection
         const token = await authClient.oneTimeToken.generate();
         if (!token.data?.token) return;
 
-        // Ottiene le chiavi private dallo storage
+        // Get the private keys from the storage
         const [privateKeyD, privateKeyN] = await Promise.all([
           SecureStore.getItemAsync(PRIVATE_KEY_D(session.user.id), {
             requireAuthentication: true,
@@ -147,55 +147,55 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
           }),
         ]);
 
-        // Se non ci sono chiavi private, non connettere
+        // If there are no private keys, do not connect
         if (!privateKeyD || !privateKeyN) return;
 
-        // Connette al WebSocket
+        // Connect to the WebSocket
         wsConnection = client.ws.subscribe({
           query: {
             token: token.data.token,
           },
         });
 
-        // Aggiorna lo stato del WebSocket
+        // Update the state of the WebSocket
         setWs(wsConnection);
         setConnected(true);
 
-        // Gestione degli errori
+        // Handling of the errors
         wsConnection.on("error", () => {
-          // Aggiorna lo stato del WebSocket
+          // Update the state of the WebSocket
           setConnected(false);
 
-          // Prova a riconnettere dopo 3 secondi
+          // Try to reconnect after 3 seconds
           reconnectTimeout = setTimeout(() => {
             connect();
           }, 3000);
         });
 
-        // Gestione della disconnessione
+        // Handling of the disconnection
         wsConnection.on("close", () => {
-          // Aggiorna lo stato del WebSocket
+          // Update the state of the WebSocket
           setConnected(false);
 
-          // Prova a riconnettere dopo 3 secondi
+          // Try to reconnect after 3 seconds
           reconnectTimeout = setTimeout(() => {
             connect();
           }, 3000);
         });
 
-        // Listener per i messaggi del WebSocket
+        // Listener for the messages of the WebSocket
         wsConnection.subscribe(async (event: { data: WebSocketMessage }) => {
           const data = event.data;
 
-          // Se il messaggio è testuale
+          // If the message is textual
           if (data.type === "message") {
-            // Decifra il contenuto del messaggio
+            // Decrypt the content of the message
             const decryptedContent = await decryptString(data.content, {
               d: privateKeyD,
               n: privateKeyN,
             });
 
-            // Crea il messaggio
+            // Create the message
             const message: Message = {
               id: data.id,
               content: decryptedContent,
@@ -206,7 +206,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               read: data.sender === session.user.id,
             };
 
-            // Salva il messaggio nel database
+            // Save the message in the database
             try {
               await db
                 .insert(schema.message)
@@ -216,36 +216,36 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               console.error("Error saving message:", error);
             }
 
-            // Avvisa i listener del nuovo messaggio
+            // Notify the listeners of the new message
             const callbacks = chatCallbacksRef.current.get(data.chatId);
             if (callbacks) callbacks.forEach((callback) => callback(message));
 
             globalCallbacksRef.current.forEach((callback) => callback(message));
           } else if (data.type === "connection") {
-            // Se è un aggiornamento dello stato di connessione, avvisa i listener
+            // If it is an update of the connection status, notify the listeners
             const callbacks = onlineCallbacksRef.current.get(data.user);
             if (callbacks) callbacks.forEach((callback) => callback(data));
           } else if (data.type === "refetch") {
-            // Se è un aggiornamento della lista delle chat, avvisa i listener
+            // If it is an update of the chat list, notify the listeners
             refetchCallbacksRef.current.forEach((callback) => callback());
           }
         });
       } catch (error) {
-        // Se ci sono errori, loggali
+        // If there are errors, log them
         console.error("Failed to connect to WebSocket:", error);
         setConnected(false);
 
-        // Prova a riconnettere dopo 3 secondi
+        // Try to reconnect after 3 seconds
         reconnectTimeout = setTimeout(() => {
           connect();
         }, 3000);
       }
     };
 
-    // Connette al WebSocket
+    // Connect to the WebSocket
     connect();
 
-    // Quando il componente viene smontato, chiude la connessione
+    // When the component is unmounted, close the connection
     return () => {
       clearTimeout(reconnectTimeout);
       wsConnection?.close();
@@ -258,15 +258,15 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     async (
       chatId: string,
       content: string,
-      receivers: Array<{ id: string; publicKeyE: string; publicKeyN: string }>
+      receivers: Array<{ id: string; publicKeyE: string; publicKeyN: string }>,
     ) => {
-      // Se il WebSocket non è connesso, logga un avviso
+      // If the WebSocket is not connected, log a warning
       if (!ws || !connected) {
         console.warn("WebSocket not connected");
         return;
       }
 
-      // Cifra il messaggio per ogni destinatario con le loro chiavi pubbliche
+      // Encrypt the message for each receiver with their public keys
       const encryptedMessages = await Promise.all(
         receivers.map(async (receiver) => {
           const encryptedMessage = await encryptString(content, {
@@ -279,27 +279,27 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
             receiver: receiver.id,
             chatId,
           };
-        })
+        }),
       );
 
-      // Invia i messaggi cifrati al WebSocket
+      // Send the encrypted messages to the WebSocket
       for (const message of encryptedMessages) {
         ws.send(message);
       }
     },
-    [ws, connected]
+    [ws, connected],
   );
 
   const subscribeToChat = useCallback(
     (chatId: string, callback: (message: Message) => void) => {
-      // Se non esiste un listener per la chat, crea uno
+      // If there is no listener for the chat, create one
       if (!chatCallbacksRef.current.has(chatId))
         chatCallbacksRef.current.set(chatId, new Set());
 
-      // Aggiunge il listener alla chat
+      // Add the listener to the chat
       chatCallbacksRef.current.get(chatId)!.add(callback);
 
-      // Quando il componente viene smontato, rimuove il listener
+      // When the component is unmounted, remove the listener
       return () => {
         const callbacks = chatCallbacksRef.current.get(chatId);
 
@@ -310,22 +310,22 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         }
       };
     },
-    []
+    [],
   );
 
   const subscribeToUser = useCallback(
     (
       userId: string,
-      callback: (connection: { user: string; online: boolean }) => void
+      callback: (connection: { user: string; online: boolean }) => void,
     ) => {
-      // Se non esiste un listener per lo stato dell'utente, crea uno
+      // If there is no listener for the user status, create one
       if (!onlineCallbacksRef.current.has(userId))
         onlineCallbacksRef.current.set(userId, new Set());
 
-      // Aggiunge il listener allo stato dell'utente
+      // Add the listener to the user status
       onlineCallbacksRef.current.get(userId)!.add(callback);
 
-      // Quando il componente viene smontato, rimuove il listener
+      // When the component is unmounted, remove the listener
       return () => {
         const callbacks = onlineCallbacksRef.current.get(userId);
         if (callbacks) {
@@ -335,18 +335,18 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         }
       };
     },
-    []
+    [],
   );
 
   const subscribeToAll = useCallback((callback: (message: Message) => void) => {
-    // Se non esiste un listener per i messaggi globali, crea uno
+    // If there is no listener for the global messages, create one
     globalCallbacksRef.current.add(callback);
 
     return () => globalCallbacksRef.current.delete(callback);
   }, []);
 
   const subscribeToRefetch = useCallback((callback: () => void) => {
-    // Se non esiste un listener per i refetch, crea uno
+    // If there is no listener for the refetch, create one
     refetchCallbacksRef.current.add(callback);
 
     return () => refetchCallbacksRef.current.delete(callback);

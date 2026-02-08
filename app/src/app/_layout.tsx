@@ -17,10 +17,7 @@ function LayoutContent() {
 
   useEffect(() => {
     if (!success && error) {
-      Alert.alert(
-        "Errore",
-        "Si è verificato un errore durante la migrazione del database"
-      );
+      Alert.alert("Error", "An error occurred while migrating the database");
       console.error(error);
     }
   }, [success, error]);

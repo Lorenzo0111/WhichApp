@@ -45,9 +45,7 @@ export default function ExportScreen() {
             />
           </TouchableOpacity>
 
-          <Text className="text-text text-2xl font-bold ml-2">
-            Esporta Chiavi
-          </Text>
+          <Text className="text-text text-2xl font-bold ml-2">Export Keys</Text>
         </View>
 
         <View className="flex-1 items-center justify-center p-4">
@@ -64,19 +62,18 @@ export default function ExportScreen() {
                     color={(primaryColor as string) ?? "#000"}
                   />
                   <Text className="text-text text-lg font-bold">
-                    Come funziona?
+                    How does it work?
                   </Text>
                 </View>
 
                 <Text className="text-input text-center text-sm leading-5 mb-4 px-2">
-                  1. Apri WhichApp sul{" "}
-                  <Text className="font-bold">nuovo dispositivo</Text>
+                  1. Open WhichApp on the{" "}
+                  <Text className="font-bold">new device</Text>
                   {"\n"}
-                  2. Vai su{" "}
-                  <Text className="font-bold">"Nessuna chiave trovata"</Text>
+                  2. Go to <Text className="font-bold">"No keys found"</Text>
                   {"\n"}
-                  3. Premi <Text className="font-bold">"Importa"</Text> e
-                  scansiona questo codice
+                  3. Press <Text className="font-bold">"Import"</Text> and scan
+                  this code
                 </Text>
 
                 <View className="bg-destructive/10 p-3 rounded-xl flex-row gap-3 items-center w-full">
@@ -85,13 +82,13 @@ export default function ExportScreen() {
                     color={(errorColor as string) ?? "red"}
                   />
                   <Text className="text-error text-xs font-medium flex-1">
-                    Non condividere questo codice! Chiunque lo scansioni potrà
-                    leggere i tuoi messaggi.
+                    Do not share this code! Anyone who scans it can read your
+                    messages.
                   </Text>
                 </View>
               </>
             ) : (
-              <Text className="text-text">Caricamento...</Text>
+              <Text className="text-text">Loading...</Text>
             )}
           </View>
         </View>

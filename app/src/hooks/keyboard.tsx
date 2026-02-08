@@ -9,8 +9,8 @@ if (
 }
 
 /**
- * @description Hook per il controllo della visibilità della tastiera
- * @returns true se la tastiera è visibile, false altrimenti
+ * @description Hook to check the visibility of the keyboard
+ * @returns true if the keyboard is visible, false otherwise
  */
 export function useKeyboard() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);

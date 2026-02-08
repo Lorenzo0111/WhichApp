@@ -28,7 +28,7 @@ export function ChatItem({
   const swipeMethodsRef = useRef<SwipeableMethods | null>(null);
 
   useEffect(() => {
-    // Ottiene l'ultimo messaggio della chat
+    // Get the last message of the chat
     db.select({
       content: schema.message.content,
     })
@@ -42,7 +42,7 @@ export function ChatItem({
   useEffect(() => {
     if (!session?.user.id) return;
 
-    // Carica il numero di messaggi non letti
+    // Load the number of unread messages
     const loadUnreadCount = async () => {
       const unreadMessages = await db
         .select({ id: schema.message.id })
@@ -51,8 +51,8 @@ export function ChatItem({
           and(
             eq(schema.message.chatId, id),
             ne(schema.message.sender, session.user.id),
-            or(eq(schema.message.read, false), isNull(schema.message.read))
-          )
+            or(eq(schema.message.read, false), isNull(schema.message.read)),
+          ),
         );
 
       setUnreadCount(unreadMessages.length);
@@ -62,28 +62,28 @@ export function ChatItem({
   }, [id, session?.user.id]);
 
   useEffect(() => {
-    // Sottoscrive al WebSocket per ricevere i nuovi messaggi
+    // Subscribe to the WebSocket to receive new messages
     const unsubscribe = subscribeToChat(id, (message) => {
-      // Aggiorna l'ultimo messaggio
+      // Update the last message
       setLastMessage(message.content);
 
-      // Incrementa il numero di messaggi non letti
+      // Increment the number of unread messages
       if (message.sender !== session?.user.id)
         setUnreadCount((prev) => prev + 1);
     });
 
-    // Quando il componente viene smontato, annulla la sottoscrizione
+    // When the component is unmounted, unsubscribe from the WebSocket
     return unsubscribe;
   }, [id, session?.user.id, subscribeToChat]);
 
   /**
-   * @description Marca tutti i messaggi non letti come letti
+   * @description Mark all unread messages as read
    */
   const handleMarkAllAsRead = async () => {
-    // Se l'utente non è autenticato, non marcare i messaggi come letti
+    // If the user is not authenticated, do not mark the messages as read
     if (!session?.user.id) return;
 
-    // Marca tutti i messaggi non letti come letti
+    // Mark all unread messages as read
     await db
       .update(schema.message)
       .set({ read: true })
@@ -91,8 +91,8 @@ export function ChatItem({
         and(
           eq(schema.message.chatId, id),
           ne(schema.message.sender, session.user.id),
-          or(eq(schema.message.read, false), isNull(schema.message.read))
-        )
+          or(eq(schema.message.read, false), isNull(schema.message.read)),
+        ),
       );
 
     setUnreadCount(0);
@@ -100,19 +100,19 @@ export function ChatItem({
   };
 
   /**
-   * @description Lascia la chat
+   * @description Leave the chat
    */
   const handleLeaveChat = async () => {
-    // Elimina i messaggi della chat
+    // Delete the messages of the chat
     await db.delete(schema.message).where(eq(schema.message.chatId, id));
 
-    // Elimina la chat
+    // Delete the chat
     await client.chats({ id: id }).delete();
 
-    // Chiude lo swipeable
+    // Close the swipeable
     swipeMethodsRef.current?.close();
 
-    // Aggiorna la lista delle chat
+    // Update the list of chats
     refetch();
   };
 
@@ -169,7 +169,7 @@ export function ChatItem({
                   ? lastMessage.length > 40
                     ? lastMessage.substring(0, 40) + "..."
                     : lastMessage
-                  : "Ancora nessun messaggio"}
+                  : "No messages yet"}
               </Text>
             </View>
           </View>
