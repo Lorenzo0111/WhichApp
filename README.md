@@ -30,7 +30,7 @@
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Monorepo | [Turbo](https://turbo.build/), [Bun](https://bun.sh/)                                                                                                                            |
 | API      | [Elysia](https://elysiajs.com/) on Bun, [Better Auth](https://www.better-auth.com/) (Expo adapter), [Drizzle ORM](https://orm.drizzle.team/), SQLite                             |
-| App      | [Expo](https://expo.dev/) (SDK 54), [Expo Router](https://expo.github.io/router/), [Uniwind](https://uniwind.pages.dev/), [Eden](https://elysiajs.com/eden/overview.html) client |
+| App      | [Expo](https://expo.dev/) (SDK 54), [Expo Router](https://expo.github.io/router/), [Uniwind](https://uniwind.dev/), [Eden](https://elysiajs.com/eden/overview.html) client |
 | Crypto   | Custom RSA in the app; server only stores and relays encrypted content                                                                                                           |
 
 ### 🔒 Security
