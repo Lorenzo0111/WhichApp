@@ -1,5 +1,7 @@
 <div align="center">
 
+[🇮🇹 Italiano](https://github.com/Lorenzo0111/WhichApp/tree/italian) - [🇬🇧 English](https://github.com/Lorenzo0111/WhichApp)
+
 # <div style="display: flex; align-items: center; justify-content: center; gap: 10px;"><img src="https://raw.githubusercontent.com/Lorenzo0111/WhichApp/main/app/assets/adaptive-icon.png" alt="WhichApp" width="50"> WhichApp</div>
 
 [![Bun](https://img.shields.io/badge/Runtime-Bun-%23FBF0DF?style=for-the-badge&logo=bun)](https://bun.sh/)
