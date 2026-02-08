@@ -156,8 +156,8 @@ const app = new Elysia()
           ?.filter((connection) => connection.readyState === WebSocket.OPEN) ??
         [];
 
-      // If the number of active connections of the recipient is less than the number of sessions
-      // means that the recipient has devices connected not connected
+      // If the number of active connections of the recipient is less than the number of sessions,
+      // it means the recipient has sessions on devices that are not currently connected
       if (connections.length < receiverSessions.length) {
         // Find the missing sessions
         const missingSessions = receiverSessions.filter(
